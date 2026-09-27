@@ -15,7 +15,9 @@
  *    pregunta para recibir el apoyo que necesita.
  *
  *    Ejemplo con los valores por defecto: 2 reformulaciones dentro de las
- *    primeras 3 preguntas → las preguntas 4 a 10 se regeneran en nivel 2.
+ *    primeras 3 preguntas → las preguntas que faltan se regeneran en nivel 2.
+ *    Se exige que haya al menos MIN_PREGUNTAS_EN_VENTANA preguntas terminadas,
+ *    para no reaccionar a una sola pregunta difícil.
  *
  *    Después de un ajuste, la ventana vuelve a empezar (solo cuentan las
  *    preguntas terminadas después del ajuste). Esto evita bajar dos niveles
@@ -29,6 +31,12 @@ import { NIVEL_MAX } from '../ai/prompts/easyRead.js';
 export const MAX_REFORMULACIONES = 2;
 export const VENTANA_PREGUNTAS = 3;
 export const UMBRAL_REFORMULACIONES = 2;
+/**
+ * Mínimo de preguntas terminadas en la ventana antes de decidir. Evita que una
+ * sola pregunta difícil (reformulada 2 veces) cambie todo el resto: se busca
+ * un patrón, no una dificultad puntual.
+ */
+export const MIN_PREGUNTAS_EN_VENTANA = 2;
 /** El nivel 4 (opciones cerradas) se reserva para reformular una pregunta puntual. */
 export const NIVEL_BASE_MAX = 3;
 
@@ -56,6 +64,8 @@ export function evaluarAdaptacion({ nivelBase, preguntas, ultimoAjusteDespuesDe 
     .filter((p) => (p.estado === 'respondida' || p.estado === 'saltada') && p.indice > ultimoAjusteDespuesDe)
     .sort((a, b) => a.indice - b.indice)
     .slice(-VENTANA_PREGUNTAS);
+
+  if (terminadas.length < MIN_PREGUNTAS_EN_VENTANA) return null;
 
   const reformulaciones = terminadas.reduce((acc, p) => acc + p.veces_reformulada, 0);
   if (reformulaciones < UMBRAL_REFORMULACIONES) return null;

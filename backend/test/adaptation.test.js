@@ -45,3 +45,10 @@ test('la reformulación nunca supera el nivel 4 y respeta el nivel base', () => 
   assert.equal(nivelDeReformulacion(1, 2), 3);
   assert.equal(nivelDeReformulacion(4, 3), 4);
 });
+
+test('una sola pregunta difícil no alcanza: se espera a tener 2 preguntas terminadas', () => {
+  const una = [pq(0, 'saltada', 2), ...pendientes(1)];
+  assert.equal(evaluarAdaptacion({ nivelBase: 1, preguntas: una, ultimoAjusteDespuesDe: -1 }), null);
+  const dos = [pq(0, 'saltada', 2), pq(1, 'respondida', 0), ...pendientes(2)];
+  assert.equal(evaluarAdaptacion({ nivelBase: 1, preguntas: dos, ultimoAjusteDespuesDe: -1 }).nuevoNivel, 2);
+});
