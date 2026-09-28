@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Práctica de entrevista de trabajo, fácil de entender." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="icono.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <title>Práctica de entrevista</title>
+    <!--
+      Versión HTML + CSS + JavaScript simple (sin React ni compilación).
+      - Cada pantalla está escrita acá abajo como un <template>.
+      - js/app.js elige qué pantalla mostrar según la máquina de estados (js/maquina.js).
+      - Lo que tiene el atributo data-leer se lee en voz alta al aparecer la pantalla.
+    -->
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <!-- Íconos: se dibujan una vez y se reutilizan con <use>. Siempre van junto a un texto. -->
+    <svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
+      <symbol id="i-parlante" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></g></symbol>
+      <symbol id="i-parlante-apagado" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></g></symbol>
+      <symbol id="i-pregunta" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.5-1.5 1.2-1.5 2.3"/><path d="M12 17.5h.01"/></g></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-cruz" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></symbol>
+      <symbol id="i-microfono" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8.5 21h7"/></g></symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2.25"/></symbol>
+      <symbol id="i-flecha" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-estrella" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1-4.5-4.2 6.1-.8z" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"/></symbol>
+      <symbol id="i-foco" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></g></symbol>
+      <symbol id="i-imprimir" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></g></symbol>
+      <symbol id="i-descargar" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-basura" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></g></symbol>
+      <symbol id="i-casa" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></symbol>
+      <symbol id="i-menos" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></symbol>
+      <symbol id="i-contraste" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.25"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor"/></symbol>
+      <symbol id="i-persona" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></g></symbol>
+      <symbol id="i-valija" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M3 13h18"/></g></symbol>
+      <symbol id="i-reintentar" viewBox="0 0 24 24"><path d="M4 4v6h6M20 20v-6h-6M5.5 15a7.5 7.5 0 0 0 13 2M18.5 9a7.5 7.5 0 0 0-13-2" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-saltar" viewBox="0 0 24 24"><path d="M5 5l8 7-8 7zM17 5v14" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linejoin="round"/></symbol>
+      <symbol id="i-documento" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></g></symbol>
+    </svg>
+
+    <header class="encabezado">
+      <a href="#contenido" class="saltar-al-contenido">Ir al contenido</a>
+      <p class="encabezado__titulo">
+        <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-chat" /></svg>
+        <span>Práctica de entrevista</span>
+      </p>
+      <nav class="encabezado__opciones" aria-label="Opciones de lectura">
+        <button type="button" class="boton-chico" data-pref="achicar">
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-menos" /></svg>
+          <span>Letra más chica</span>
+        </button>
+        <button type="button" class="boton-chico" data-pref="agrandar">
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-mas" /></svg>
+          <span>Letra más grande</span>
+        </button>
+        <button type="button" class="boton-chico" data-pref="voz" aria-pressed="true">
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg>
+          <span>Voz: encendida</span>
+        </button>
+        <button type="button" class="boton-chico" data-pref="contraste" aria-pressed="false">
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-contraste" /></svg>
+          <span>Contraste normal</span>
+        </button>
+        <button type="button" class="boton-chico" data-accion="pedir-borrado" hidden>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-basura" /></svg>
+          <span>Borrar mis datos</span>
+        </button>
+      </nav>
+    </header>
+
+    <main id="contenido" class="contenido">
+      <noscript>
+        <p>Para usar esta página, activá JavaScript en tu navegador.</p>
+      </noscript>
+    </main>
+
+    <!-- ═══════════════════════ PANTALLAS ═══════════════════════
+         Textos en Lectura Fácil. Glosario fijo: entrevista, pregunta,
+         respuesta, puesto de trabajo, informe, datos. -->
+
+    <template id="t-bienvenida">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-chat" /></svg>
+          <span>Hola. Te damos la bienvenida.</span>
+        </h1>
+        <ul class="lista-ideas" data-leer>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-chat" /></svg><span>Acá podés practicar una entrevista de trabajo.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-pregunta" /></svg><span>Yo te hago 10 preguntas. Vos respondés.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-microfono" /></svg><span>Podés responder hablando o escribiendo.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-estrella" /></svg><span>No hay respuestas buenas ni malas.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-pregunta" /></svg><span>Si no entendés una pregunta, tocá el botón "No entiendo".</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-documento" /></svg><span>Al final te doy un informe con ideas para mejorar.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-check" /></svg><span>Podés ir despacio. No hay apuro.</span></li>
+        </ul>
+        <div class="botones">
+          <button type="button" class="boton boton--principal" data-accion="empezar">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-flecha" /></svg><span>Empezar</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="escuchar" data-solo-con-voz>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg><span>Escuchar de nuevo</span>
+          </button>
+        </div>
+      </section>
+    </template>
+
+    <!-- Consentimiento informado en Lectura Fácil. Sin aceptar, no se guarda nada. -->
+    <template id="t-consentimiento">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg>
+          <span>Antes de empezar</span>
+        </h1>
+        <ul class="lista-ideas" data-leer>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg><span>Para practicar, necesito guardar algunos datos.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg><span>Guardo tu nombre, el puesto de trabajo y tus respuestas.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg><span>Uso esos datos solo para hacer tu informe.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg><span>Una inteligencia artificial lee tus respuestas para ayudarte. No le mando tu nombre.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg><span>Si hablás, tu navegador convierte tu voz en texto. No guardo tu voz.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg><span>Tus datos se borran solos en 1 día.</span></li>
+          <li><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg><span>También podés borrar tus datos cuando quieras con el botón "Borrar mis datos".</span></li>
+        </ul>
+        <p class="pregunta-destacada" data-leer>¿Estás de acuerdo?</p>
+        <div class="botones">
+          <button type="button" class="boton boton--principal" data-accion="aceptar">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-check" /></svg><span>Sí, acepto</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="rechazar">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-cruz" /></svg><span>No acepto</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="escuchar" data-solo-con-voz>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg><span>Escuchar de nuevo</span>
+          </button>
+        </div>
+      </section>
+    </template>
+
+    <template id="t-sin-consentimiento">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-escudo" /></svg>
+          <span>Está bien.</span>
+        </h1>
+        <div data-leer>
+          <p>Sin tu permiso no guardo nada.</p>
+          <p>Sin guardar datos no puedo hacer la entrevista.</p>
+          <p>Si cambiás de idea, podés volver al inicio.</p>
+        </div>
+        <div class="botones">
+          <button type="button" class="boton boton--principal" data-accion="volver-inicio">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-casa" /></svg><span>Volver al inicio</span>
+          </button>
+        </div>
+      </section>
+    </template>
+
+    <!-- Captura de un dato (nombre o puesto). js/pantallas.js completa los textos. -->
+    <template id="t-dato">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use data-icono /></svg>
+          <span data-slot="titulo"></span>
+        </h1>
+        <form class="formulario" novalidate data-form="dato">
+          <div data-slot="respuesta"></div>
+          <p class="aviso aviso--info" role="alert" data-slot="vacio" hidden></p>
+          <div class="botones">
+            <button type="submit" class="boton boton--principal">
+              <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-flecha" /></svg><span>Seguir</span>
+            </button>
+            <button type="button" class="boton boton--secundario" data-accion="escuchar" data-solo-con-voz>
+              <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg><span>Escuchar de nuevo</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    </template>
+
+    <!-- Confirmación simple: "¿Es correcto? Sí / No". -->
+    <template id="t-confirmar">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use data-icono /></svg>
+          <span data-slot="titulo"></span>
+        </h1>
+        <div class="botones">
+          <button type="button" class="boton boton--principal" data-accion="si">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-check" /></svg><span>Sí</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="no">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-cruz" /></svg><span>No</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="escuchar" data-solo-con-voz>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg><span>Escuchar de nuevo</span>
+          </button>
+        </div>
+      </section>
+    </template>
+
+    <!-- Espera: "Estoy preparando tus preguntas", "Estoy preparando tu informe". -->
+    <template id="t-espera">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-chat" /></svg>
+          <span data-slot="titulo"></span>
+        </h1>
+        <div data-slot="pensando"></div>
+      </section>
+    </template>
+
+    <!-- Indicador "Estoy pensando". role="status": el lector de pantalla lo anuncia sin interrumpir. -->
+    <template id="t-pensando">
+      <div class="pensando" role="status" aria-live="polite">
+        <span class="pensando__puntos" aria-hidden="true"><span></span><span></span><span></span></span>
+        <p class="pensando__texto">
+          Estoy pensando
+          <span data-slot="largo" hidden><br />Gracias por esperar.</span>
+        </p>
+      </div>
+    </template>
+
+    <!-- Campo de respuesta: se puede escribir o hablar. El texto dictado se puede corregir. -->
+    <template id="t-respuesta">
+      <div class="respuesta">
+        <label class="respuesta__etiqueta" data-slot="etiqueta"></label>
+        <p class="respuesta__ayuda" data-slot="ayuda"></p>
+        <div data-slot="campo"></div>
+        <div class="botones" data-slot="botones-voz">
+          <button type="button" class="boton boton--secundario" data-voz="hablar">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-microfono" /></svg><span>Hablar</span>
+          </button>
+          <button type="button" class="boton boton--alerta" data-voz="terminar" hidden>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-stop" /></svg><span>Terminé de hablar</span>
+          </button>
+        </div>
+        <div role="status" aria-live="polite">
+          <p class="aviso aviso--info" data-slot="aviso-voz" hidden>
+            <svg class="icono" aria-hidden="true" focusable="false"><use data-icono /></svg>
+            <span></span>
+          </p>
+        </div>
+      </div>
+    </template>
+
+    <!-- Pregunta (1 a 10). Sin cronómetro. "Escuchar de nuevo" y "No entiendo" siempre visibles. -->
+    <template id="t-pregunta">
+      <section class="pantalla pantalla--pregunta" aria-labelledby="texto-pregunta">
+        <div class="progreso">
+          <p class="progreso__texto">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-chat" /></svg>
+            <span data-slot="progreso"></span>
+          </p>
+          <ol class="progreso__puntos" aria-hidden="true" data-slot="puntos"></ol>
+        </div>
+
+        <p class="aviso aviso--suave" data-slot="aviso" hidden>
+          <svg class="icono" aria-hidden="true" focusable="false"><use data-icono /></svg>
+          <span></span>
+        </p>
+
+        <div class="tarjeta-pregunta">
+          <h1 id="texto-pregunta" class="tarjeta-pregunta__texto" tabindex="-1" data-slot="texto"></h1>
+          <p class="tarjeta-pregunta__apoyo" data-slot="pista" hidden>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-foco" /></svg>
+            <span><strong>Pista:</strong> <span></span></span>
+          </p>
+          <p class="tarjeta-pregunta__apoyo" data-slot="ejemplo" hidden>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-chat" /></svg>
+            <span><strong>Por ejemplo:</strong> <span></span></span>
+          </p>
+        </div>
+
+        <div class="botones">
+          <button type="button" class="boton boton--secundario" data-accion="escuchar" data-solo-con-voz>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg><span>Escuchar de nuevo</span>
+          </button>
+          <button type="button" class="boton boton--ayuda" data-accion="no-entiendo">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-pregunta" /></svg><span>No entiendo</span>
+          </button>
+        </div>
+
+        <div data-slot="pensando"></div>
+        <div data-slot="error"></div>
+
+        <div class="aviso aviso--suave" role="status" data-slot="ofrecer-saltar" hidden>
+          <p><strong>Esta pregunta es difícil. Está bien.</strong></p>
+          <p>Podés intentar otra vez o pasar a la siguiente pregunta.</p>
+          <div class="botones">
+            <button type="button" class="boton boton--principal" data-accion="intentar-otra-vez">
+              <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-reintentar" /></svg><span>Intentar otra vez</span>
+            </button>
+            <button type="button" class="boton boton--secundario" data-accion="saltar">
+              <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-saltar" /></svg><span>Pasar a la siguiente pregunta</span>
+            </button>
+          </div>
+        </div>
+
+        <form class="formulario-respuesta" novalidate data-form="respuesta">
+          <div data-slot="respuesta"></div>
+          <p class="aviso aviso--info" role="alert" data-slot="vacio" hidden>
+            Escribí o decí tu respuesta. Si no entendés la pregunta, tocá "No entiendo".
+          </p>
+          <div class="botones">
+            <button type="submit" class="boton boton--principal">
+              <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-check" /></svg><span>Ya respondí</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    </template>
+
+    <template id="t-gracias">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-estrella" /></svg>
+          <span data-slot="titulo"></span>
+        </h1>
+        <div data-leer>
+          <p class="texto-grande">Gracias por practicar.</p>
+          <p class="texto-grande">Hiciste un gran trabajo.</p>
+          <p class="texto-grande">Ahora podés ver tu informe.</p>
+        </div>
+        <div class="botones">
+          <button type="button" class="boton boton--principal" data-accion="ver-informe">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-documento" /></svg><span>Ver mi informe</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="escuchar" data-solo-con-voz>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg><span>Escuchar de nuevo</span>
+          </button>
+        </div>
+      </section>
+    </template>
+
+    <!-- Informe final: "Para vos" (Lectura Fácil) + parte plegada para el tutor o tutora. -->
+    <template id="t-informe">
+      <section class="pantalla pantalla--informe" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1">
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-documento" /></svg>
+          <span>Tu informe</span>
+        </h1>
+        <p class="informe__datos" data-slot="datos"></p>
+
+        <section class="informe-usuario" aria-labelledby="titulo-para-vos" data-leer>
+          <h2 id="titulo-para-vos">Para vos</h2>
+          <p class="texto-grande" data-slot="inicio"></p>
+          <h3><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-estrella" /></svg> Lo que hiciste bien</h3>
+          <ul class="lista-tarjetas" data-slot="fuertes"></ul>
+          <h3><svg class="icono" aria-hidden="true" focusable="false"><use href="#i-foco" /></svg> Ideas para practicar</h3>
+          <ul class="lista-tarjetas" data-slot="ideas"></ul>
+          <p class="texto-grande" data-slot="final"></p>
+        </section>
+        <div class="botones no-imprimir">
+          <button type="button" class="boton boton--secundario" data-accion="escuchar" data-solo-con-voz>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-parlante" /></svg><span>Escuchar mi informe</span>
+          </button>
+        </div>
+
+        <details class="informe-tutor" data-slot="tutor">
+          <summary>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-persona" /></svg>
+            <span>Informe para tu tutor o tutora</span>
+          </summary>
+          <p class="informe-tutor__aclaracion">Esta parte es para la persona que te acompaña.</p>
+          <div data-slot="contenido-tutor"></div>
+        </details>
+
+        <div class="botones no-imprimir">
+          <button type="button" class="boton boton--secundario" data-accion="imprimir">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-imprimir" /></svg><span>Imprimir</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="descargar">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-descargar" /></svg><span>Descargar</span>
+          </button>
+          <button type="button" class="boton boton--principal" data-accion="nueva-entrevista">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-mas" /></svg><span>Empezar otra entrevista</span>
+          </button>
+          <button type="button" class="boton boton--alerta" data-accion="pedir-borrado">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-basura" /></svg><span>Borrar mis datos</span>
+          </button>
+        </div>
+      </section>
+    </template>
+
+    <!-- Aviso de problema técnico. El problema es del sistema, nunca de la persona. -->
+    <template id="t-error-caja">
+      <div class="aviso aviso--problema" role="alert">
+        <p class="aviso__texto">
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-reintentar" /></svg>
+          <span data-slot="mensaje"></span>
+        </p>
+        <div class="botones">
+          <button type="button" class="boton boton--principal" data-accion="reintentar" data-slot="reintentar">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-reintentar" /></svg><span>Probar otra vez</span>
+          </button>
+          <button type="button" class="boton boton--principal" data-accion="nueva-entrevista" data-slot="inicio" hidden>
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-casa" /></svg><span>Volver al inicio</span>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <template id="t-error">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1">
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-reintentar" /></svg>
+          <span data-slot="titulo"></span>
+        </h1>
+        <div data-slot="error"></div>
+      </section>
+    </template>
+
+    <template id="t-confirmar-borrado">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-basura" /></svg>
+          <span>¿Querés borrar tus datos?</span>
+        </h1>
+        <p data-leer>Se borra todo lo de esta entrevista.</p>
+        <div data-slot="pensando"></div>
+        <div data-slot="error"></div>
+        <div class="botones" data-slot="botones">
+          <button type="button" class="boton boton--alerta" data-accion="confirmar-borrado">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-basura" /></svg><span>Sí, borrar</span>
+          </button>
+          <button type="button" class="boton boton--secundario" data-accion="cancelar-borrado">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-cruz" /></svg><span>No, volver</span>
+          </button>
+        </div>
+      </section>
+    </template>
+
+    <template id="t-borrado">
+      <section class="pantalla" aria-labelledby="titulo-pantalla">
+        <h1 id="titulo-pantalla" class="pantalla__titulo" tabindex="-1" data-leer>
+          <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-check" /></svg>
+          <span>Listo.</span>
+        </h1>
+        <p data-leer>Borramos tus datos.</p>
+        <div class="botones">
+          <button type="button" class="boton boton--principal" data-accion="volver-inicio">
+            <svg class="icono" aria-hidden="true" focusable="false"><use href="#i-casa" /></svg><span>Volver al inicio</span>
+          </button>
+        </div>
+      </section>
+    </template>
+  </body>
+</html>

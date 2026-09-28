@@ -40,3 +40,16 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+
+  frontend-html:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-html
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Sin dependencias: no hace falta npm install.
+      - run: npm test

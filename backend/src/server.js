@@ -22,6 +22,7 @@ const app = createApp({
   ai,
   corsOrigins: config.corsOrigins,
   rateLimitPerMinute: config.rateLimitPerMinute,
+  staticDir: config.staticDir,
 });
 
 // Privacidad: borrado automático de sesiones viejas (al iniciar y cada hora).
@@ -38,6 +39,9 @@ const server = app.listen(config.port, () => {
     `Backend escuchando en http://localhost:${config.port} ` +
       `(IA: ${config.ai.provider === 'mock' ? 'simulada' : config.ai.model})`,
   );
+  if (config.staticDir) {
+    console.log(`Versión HTML del frontend: abrí http://localhost:${config.port} en el navegador`);
+  }
 });
 
 function apagar() {

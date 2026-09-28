@@ -210,3 +210,23 @@ test('la retención borra sesiones viejas', async () => {
   assert.equal(repo.deleteExpired(-1), 1);
   assert.equal(repo.getSession(id), undefined);
 });
+
+test('el backend puede servir la versión HTML del frontend sin tapar la API', async () => {
+  const path = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const { openDatabase } = await import('../src/db/database.js');
+  const { createRepository } = await import('../src/db/repository.js');
+  const { createMockProvider } = await import('../src/ai/mockProvider.js');
+  const { createApp } = await import('../src/app.js');
+  const staticDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../frontend-html');
+  const app = createApp({
+    repo: createRepository(openDatabase(':memory:')),
+    ai: createMockProvider(),
+    staticDir,
+  });
+  const pagina = await request(app).get('/').expect(200);
+  assert.match(pagina.text, /<template id="t-pregunta">/);
+  await request(app).get('/js/app.js').expect(200).expect('Content-Type', /javascript/);
+  await request(app).get('/api/health').expect(200, { ok: true });
+  await request(app).get('/no-existe').expect(404);
+});

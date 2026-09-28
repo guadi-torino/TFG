@@ -2,6 +2,13 @@
 
 Trabajo Final de Grado. Aplicación web para que una persona con discapacidad intelectual practique una entrevista de trabajo con un agente conversacional de IA (Claude). **La entrevista se adapta a la persona, no al revés**: el lenguaje sigue las pautas de Lectura Fácil, las preguntas se reformulan cuando no se entienden y el nivel de todo lo que falta baja solo si hace falta.
 
+El proyecto tiene **dos versiones del frontend** que hacen exactamente lo mismo y usan el mismo backend:
+
+| Versión | Carpeta | Tecnología | Cómo se usa |
+|---|---|---|---|
+| HTML | `frontend-html/` | HTML + CSS + JavaScript simple, sin compilar ni instalar nada | El backend la sirve: una sola terminal y abrís `http://localhost:3001` |
+| React | `frontend/` | React + Vite | Segunda terminal con `npm run dev` y abrís `http://localhost:5173` |
+
 ---
 
 ## 1. Arquitectura
@@ -85,7 +92,18 @@ backend/
     middleware/    auth.js, validate.js, errorHandler.js, httpError.js
     routes/        session.js
   test/            tests con node:test + supertest
-frontend/
+frontend-html/                    (versión sin React: no se instala ni se compila)
+  index.html                      (todas las pantallas escritas como <template>)
+  css/estilos.css
+  fonts/                          (Atkinson Hyperlegible, servida localmente)
+  js/
+    app.js                        (controlador: estado → pantalla, botones, backend)
+    pantallas.js                  (completa cada <template> con los datos)
+    maquina.js                    (máquina de estados, igual a la versión React)
+    api.js, preferencias.js, textos.js, informe.js, config.js
+    voz/                          (interfaces de voz + Web Speech API)
+  test/                           (node --test, sin dependencias)
+frontend/                         (versión React)
   .env.example, index.html, vite.config.js
   src/
     App.jsx, main.jsx
@@ -114,7 +132,13 @@ cp .env.example .env
 npm start            # http://localhost:3001
 ```
 
-### Frontend
+### Frontend, versión HTML (la más simple)
+
+No hay que hacer nada más: con el backend corriendo, abrí **`http://localhost:3001`** en Chrome o Edge. El backend sirve la carpeta `frontend-html/` (se puede cambiar con `STATIC_DIR` en `backend/.env`). Para ajustar la URL de la API o el idioma de la voz, editá `frontend-html/js/config.js`.
+
+Cada pantalla está escrita como un `<template>` en `frontend-html/index.html`: para cambiar un texto fijo, se edita directamente ahí. Lo que tiene el atributo `data-leer` se lee en voz alta al aparecer la pantalla.
+
+### Frontend, versión React
 
 En otra terminal:
 
@@ -133,6 +157,7 @@ Vite redirige `/api` al backend (`vite.config.js`). Para producción: `npm run b
 ```bash
 cd backend && npm test      # API, adaptación, heurísticas, prompts, fallos de IA
 cd frontend && npm test     # máquina de estados y flujo completo con voz simulada
+cd frontend-html && npm test  # máquina de estados y textos leídos en voz alta (sin instalar nada)
 ```
 
 GitHub Actions corre estos mismos tests y la compilación del frontend en cada pull request (`.github/workflows/ci.yml`). No necesita API key: usa el proveedor de IA simulado.
@@ -150,6 +175,7 @@ GitHub Actions corre estos mismos tests y la compilación del frontend en cada p
 | `DATABASE_PATH` | backend | Archivo SQLite |
 | `DATA_RETENTION_HOURS` | backend | Borrado automático de sesiones (por defecto 24 h) |
 | `RATE_LIMIT_PER_MINUTE` | backend | Límite de pedidos por IP |
+| `STATIC_DIR` | backend | Carpeta del frontend HTML que se sirve en `/` (por defecto `../frontend-html`; vacía para desactivar) |
 | `VITE_API_URL` | frontend | Base de la API (por defecto `/api`) |
 | `VITE_SPEECH_LANG` | frontend | Idioma de la voz (por defecto `es-AR`) |
 
