@@ -135,6 +135,8 @@ cd backend && npm test      # API, adaptación, heurísticas, prompts, fallos de
 cd frontend && npm test     # máquina de estados y flujo completo con voz simulada
 ```
 
+GitHub Actions corre estos mismos tests y la compilación del frontend en cada pull request (`.github/workflows/ci.yml`). No necesita API key: usa el proveedor de IA simulado.
+
 ### Variables de entorno
 
 | Variable | Dónde | Descripción |

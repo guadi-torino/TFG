@@ -139,12 +139,18 @@ export function useInterview({ apiImpl = api } = {}) {
   verInformeRef.current = verInforme;
 
   // Al abrir la página: si hay una entrevista a medias en esta pestaña, se retoma.
+  // Si la sesión quedó a medio crear (todavía sin preguntas), se descarta: la
+  // persona vuelve a empezar y no se deben reutilizar el nombre ni el puesto viejos.
   useEffect(() => {
     if (!sesionGuardada()) return;
-    sincronizar().catch((err) => {
-      if (err.code === 'sesion_no_encontrada') olvidarSesion();
-    });
-  }, [sincronizar]);
+    sincronizar()
+      .then((retomada) => {
+        if (!retomada) return apiImpl.borrar().catch(() => olvidarSesion());
+      })
+      .catch((err) => {
+        if (err.code === 'sesion_no_encontrada') olvidarSesion();
+      });
+  }, [sincronizar, apiImpl]);
 
   const acciones = {
     empezar: () => dispatch({ type: 'EMPEZAR' }),
