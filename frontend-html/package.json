@@ -1,0 +1,10 @@
+{
+  "name": "entrevista-facil-frontend-html",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Versión HTML + CSS + JavaScript simple del frontend. No necesita instalar dependencias ni compilar.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

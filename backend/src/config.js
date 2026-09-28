@@ -5,6 +5,9 @@
  * Nunca se envía al frontend ni aparece en ninguna respuesta HTTP.
  */
 import 'dotenv/config';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 function toInt(value, fallback) {
   const n = Number.parseInt(value ?? '', 10);
@@ -18,6 +21,18 @@ function toBool(value, fallback) {
 
 const aiProvider = (process.env.AI_PROVIDER ?? 'claude').toLowerCase();
 
+/**
+ * Carpeta de la versión HTML del frontend. Por defecto, ../frontend-html
+ * (relativa a esta carpeta backend/). STATIC_DIR= vacío la desactiva.
+ */
+function resolverStaticDir() {
+  const backendDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const valor = process.env.STATIC_DIR ?? '../frontend-html';
+  if (!valor) return null;
+  const dir = path.resolve(backendDir, valor);
+  return fs.existsSync(path.join(dir, 'index.html')) ? dir : null;
+}
+
 export const config = Object.freeze({
   port: toInt(process.env.PORT, 3001),
   corsOrigins: (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
@@ -27,6 +42,7 @@ export const config = Object.freeze({
   databasePath: process.env.DATABASE_PATH ?? './data/entrevistas.db',
   dataRetentionHours: toInt(process.env.DATA_RETENTION_HOURS, 24),
   rateLimitPerMinute: toInt(process.env.RATE_LIMIT_PER_MINUTE, 60),
+  staticDir: resolverStaticDir(),
 
   ai: Object.freeze({
     provider: aiProvider === 'mock' ? 'mock' : 'claude',

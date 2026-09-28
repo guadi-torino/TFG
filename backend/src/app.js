@@ -12,9 +12,11 @@ import { createInterviewService } from './domain/interviewService.js';
 
 /**
  * @param {{ repo: ReturnType<import('./db/repository.js').createRepository>, ai: object,
- *           corsOrigins?: string[], rateLimitPerMinute?: number }} deps
+ *           corsOrigins?: string[], rateLimitPerMinute?: number, staticDir?: string | null }} deps
+ *   staticDir: carpeta de páginas a servir en "/" (por ejemplo, frontend-html/).
+ *              Así la versión HTML se usa sin un segundo servidor.
  */
-export function createApp({ repo, ai, corsOrigins = [], rateLimitPerMinute = 60 }) {
+export function createApp({ repo, ai, corsOrigins = [], rateLimitPerMinute = 60, staticDir = null }) {
   const app = express();
   const interview = createInterviewService({ repo, ai });
 
@@ -45,6 +47,7 @@ export function createApp({ repo, ai, corsOrigins = [], rateLimitPerMinute = 60 
   );
 
   app.use('/api/session', sessionRouter({ repo, interview }));
+  if (staticDir) app.use(express.static(staticDir, { index: 'index.html' }));
   app.use(notFound);
   app.use(errorHandler);
   return app;
