@@ -28,7 +28,7 @@ El proyecto tiene **dos versiones del frontend** que hacen exactamente lo mismo 
 │  domain/adaptation       → reformulación y adaptación progresiva   │
 │  domain/comprehensionHeuristics → señales de no comprensión locales│
 │  ai/  → 4 servicios con salida JSON estructurada ──► API de Claude │
-│  db/  → SQLite (better-sqlite3), fácil de migrar a PostgreSQL      │
+│  db/  → SQLite incluido en Node (node:sqlite), migrable a Postgres │
 └────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -119,14 +119,14 @@ frontend/                         (versión React)
 
 ## 3. Instalación y ejecución local
 
-Requisitos: **Node.js 20 o superior** y una API key de Claude (opcional para probar: existe un modo simulado).
+Requisitos: **Node.js 22.13 o superior** (se recomienda la versión LTS) y una API key de Claude (opcional para probar: existe un modo simulado). La base de datos usa el SQLite que ya trae Node, así que la instalación no compila nada: no hace falta Python ni Visual Studio, ni siquiera en Windows.
 
 ### Backend
 
 ```bash
 cd backend
 npm install
-cp .env.example .env
+cp .env.example .env         # en Windows: copy .env.example .env
 # Editá .env y poné tu ANTHROPIC_API_KEY
 # (o AI_PROVIDER=mock para probar sin IA real)
 npm start            # http://localhost:3001

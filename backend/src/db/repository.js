@@ -11,6 +11,31 @@ export function hashToken(token) {
 }
 
 export function createRepository(db) {
+  /**
+   * Transacción: todo o nada. Si ya hay una transacción abierta (una función
+   * transaccional llama a otra), se ejecuta dentro de la misma.
+   */
+  let profundidad = 0;
+  function enTransaccion(fn) {
+    if (profundidad > 0) return fn();
+    db.exec('BEGIN');
+    profundidad++;
+    try {
+      const resultado = fn();
+      db.exec('COMMIT');
+      return resultado;
+    } catch (err) {
+      db.exec('ROLLBACK');
+      throw err;
+    } finally {
+      profundidad--;
+    }
+  }
+  const transaccional =
+    (fn) =>
+    (...args) =>
+      enTransaccion(() => fn(...args));
+
   const stmts = {
     insertSession: db.prepare(`
       INSERT INTO sessions (id, token_hash, nombre, puesto, estado, nivel_base,
@@ -68,12 +93,13 @@ export function createRepository(db) {
     const keys = Object.keys(fields).filter((k) => allowed.has(k));
     if (keys.length === 0) return;
     const set = keys.map((k) => `${k} = @${k}`).join(', ');
-    const extra = table === 'sessions' ? ', updated_at = @updated_at' : '';
-    db.prepare(`UPDATE ${table} SET ${set}${extra} WHERE id = @id`).run({
-      ...Object.fromEntries(keys.map((k) => [k, fields[k]])),
-      updated_at: now(),
-      id,
-    });
+    const params = { ...Object.fromEntries(keys.map((k) => [k, fields[k]])), id };
+    let extra = '';
+    if (table === 'sessions') {
+      extra = ', updated_at = @updated_at';
+      params.updated_at = now();
+    }
+    db.prepare(`UPDATE ${table} SET ${set}${extra} WHERE id = @id`).run(params);
   }
 
   function addVersion(questionId, { nivel, texto, ejemplo = null, pista = null }, motivo) {
@@ -118,7 +144,7 @@ export function createRepository(db) {
     },
 
     /** Inserta las 10 preguntas con su versión inicial, en una transacción. */
-    insertQuestions: db.transaction((sessionId, preguntas) => {
+    insertQuestions: transaccional((sessionId, preguntas) => {
       preguntas.forEach((p, indice) => {
         const { lastInsertRowid } = stmts.insertQuestion.run({
           session_id: sessionId,
@@ -191,6 +217,6 @@ export function createRepository(db) {
     },
 
     /** Ejecuta `fn` dentro de una transacción. */
-    transaction: (fn) => db.transaction(fn)(),
+    transaction: enTransaccion,
   };
 }

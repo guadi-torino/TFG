@@ -2,6 +2,8 @@
  * Conexión SQLite y esquema.
  *
  * Se eligió SQLite por simplicidad para la tesis: un solo archivo, sin servidor.
+ * Se usa el SQLite que ya viene incluido en Node.js (node:sqlite, Node 22.13+):
+ * no hay que compilar nada al instalar, en ningún sistema operativo.
  * El SQL usa tipos y construcciones estándar (TEXT, INTEGER, claves foráneas,
  * ON DELETE CASCADE) para que migrar a PostgreSQL sea directo.
  *
@@ -13,7 +15,7 @@
  *   "Borrar mis datos" elimina todo en una sola operación.
  * - El token de sesión se guarda como hash SHA-256, nunca en claro.
  */
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -103,9 +105,9 @@ export function openDatabase(dbPath) {
   if (dbPath !== ':memory:') {
     fs.mkdirSync(path.dirname(path.resolve(dbPath)), { recursive: true });
   }
-  const db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
+  const db = new DatabaseSync(dbPath);
+  if (dbPath !== ':memory:') db.exec('PRAGMA journal_mode = WAL');
+  db.exec('PRAGMA foreign_keys = ON');
   db.exec(SCHEMA);
   return db;
 }
